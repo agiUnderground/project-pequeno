@@ -1,0 +1,116 @@
+diff --git a/src/drawing-context.hh b/src/drawing-context.hh
+index 5b14e2a7..c44510d6 100644
+--- a/src/drawing-context.hh
++++ b/src/drawing-context.hh
+@@ -263,7 +263,8 @@ protected:
+         FontInfo* m_fonts[4]{nullptr, nullptr, nullptr, nullptr};
+         int m_cell_width{1};
+         int m_cell_height{1};
+-        int m_scale_factor{1};
++        // int m_scale_factor{1};
++        double m_scale_factor{0.64};
+         GtkBorder m_char_spacing{1, 1, 1, 1};
+ 
+         /* Cache the undercurl's rendered look. */
+diff --git a/src/fonts-pangocairo.cc b/src/fonts-pangocairo.cc
+index ea261424..5b1d2c45 100644
+--- a/src/fonts-pangocairo.cc
++++ b/src/fonts-pangocairo.cc
+@@ -195,6 +195,7 @@ FontInfo::measure_font()
+          */
+         auto max_width = 1;
+         auto max_height = 1;
++        //auto max_height = 0.64;
+         for (char c = 0x21; c < 0x7f; ++c) {
+                 pango_layout_set_text(m_layout.get(), &c, 1);
+                 pango_layout_get_extents(m_layout.get(), nullptr, &logical);
+diff --git a/src/fonts-pangocairo.hh b/src/fonts-pangocairo.hh
+index a4fdbe19..b482de69 100644
+--- a/src/fonts-pangocairo.hh
++++ b/src/fonts-pangocairo.hh
+@@ -262,7 +262,7 @@ private:
+ 
+         /* cell metrics as taken from the font, not yet scaled by cell_{width,height}_scale */
+ 	int m_width{1};
+-        int m_height{1};
++        double m_height{0.64};
+         int m_ascent{0};
+ 
+ 	/* reusable string for UTF-8 conversion */
+diff --git a/src/vte.cc b/src/vte.cc
+index 96ad60a0..916719c6 100644
+--- a/src/vte.cc
++++ b/src/vte.cc
+@@ -8514,7 +8514,8 @@ Terminal::widget_size_allocate(
+          * is VTE_MIN_GRID_WIDTH/HEIGHT, but let's be extra safe.
+          */
+         grid_width = std::max(grid_width, VTE_MIN_GRID_WIDTH);
+-        grid_height = std::max(grid_height, VTE_MIN_GRID_HEIGHT);
++        //grid_height = std::max(grid_height, VTE_MIN_GRID_HEIGHT);
++        grid_height = VTE_MIN_GRID_HEIGHT;
+ 
+         _vte_debug_print(VTE_DEBUG_WIDGET_SIZE,
+                          "[Terminal %p] Sizing window to %dx%d (%dx%d, effective border %d,%d;%d,%d).\n",
+@@ -8842,6 +8843,9 @@ Terminal::draw_cells(vte::view::DrawingContext::TextRequest* items,
+         vte::color::rgb fg, bg, dc;
+ 
+ 	g_assert(n > 0);
++
++	// custom
++	row_height *= 0.64;
+ #if 0
+ 	_VTE_DEBUG_IF(VTE_DEBUG_CELLS) {
+ 		GString *str = g_string_new (NULL);
+diff --git a/src/vtedefines.hh b/src/vtedefines.hh
+index fe852382..1535e8b5 100644
+--- a/src/vtedefines.hh
++++ b/src/vtedefines.hh
+@@ -87,10 +87,11 @@
+ 
+ #define VTE_UTF8_BPC                    (4) /* Maximum number of bytes used per UTF-8 character */
+ 
+-#define VTE_FONT_SCALE_MIN (.25)
+-#define VTE_FONT_SCALE_MAX (4.)
+-#define VTE_CELL_SCALE_MIN (1.)
+-#define VTE_CELL_SCALE_MAX (2.)
++//#define VTE_FONT_SCALE_MIN (.25)
++#define VTE_FONT_SCALE_MIN (.01)
++#define VTE_FONT_SCALE_MAX (5.)
++#define VTE_CELL_SCALE_MIN (.01)
++#define VTE_CELL_SCALE_MAX (3.)
+ 
+ /* Minimum time between two beeps (µs) */
+ #define VTE_BELL_MINIMUM_TIME_DIFFERENCE (100000)
+@@ -146,7 +147,8 @@
+ #define VTE_MIN_CURSOR_BLINK_TIMEOUT (50 /* ms */)
+ 
+ #define VTE_MIN_GRID_WIDTH (2) /* space for one wide character */
+-#define VTE_MIN_GRID_HEIGHT (1)
++#define VTE_MIN_GRID_HEIGHT (0.01)
++//#define VTE_MIN_GRID_HEIGHT (0.1)
+ 
+ #define VTE_FONT_WEIGHT_BOLDENING (PANGO_WEIGHT_BOLD - PANGO_WEIGHT_NORMAL)
+ 
+diff --git a/src/vteinternal.hh b/src/vteinternal.hh
+index af4c96bc..f42b35f0 100644
+--- a/src/vteinternal.hh
++++ b/src/vteinternal.hh
+@@ -692,7 +692,7 @@ public:
+         long m_char_ascent{0};
+         long m_char_descent{0};
+         double m_cell_width_scale{1.};
+-        double m_cell_height_scale{1.};
++        double m_cell_height_scale{.1};
+         GtkBorder m_char_padding{0, 0, 0, 0};
+         long m_cell_width{0};
+         long m_cell_height{0};
+@@ -712,7 +712,8 @@ public:
+         inline constexpr auto cell_overflow_bottom() const noexcept
+         {
+                 /* Allow overdrawing up into the overline of the cell on bottom */
+-                return int(m_overline_position + m_overline_thickness);
++                // return int(m_overline_position + m_overline_thickness);
++		return int(0);
+         }
+ 
+ 	/* Data used when rendering */

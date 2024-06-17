@@ -1,0 +1,44 @@
+diff --git a/terminal/terminal-preferences-dialog.c b/terminal/terminal-preferences-dialog.c
+index df8d6b92..a551361f 100644
+--- a/terminal/terminal-preferences-dialog.c
++++ b/terminal/terminal-preferences-dialog.c
+@@ -826,7 +826,7 @@ terminal_preferences_dialog_init (TerminalPreferencesDialog *dialog)
+   gtk_grid_attach (GTK_GRID (grid), label, 0, row, 1, 1);
+   gtk_widget_show (label);
+ 
+-  button = gtk_spin_button_new_with_range (1.0, 2.0, 0.1);
++  button = gtk_spin_button_new_with_range (0.1, 3.0, 0.01);
+   g_object_bind_property (G_OBJECT (dialog->preferences), "cell-width-scale",
+                           G_OBJECT (button), "value",
+                           G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+@@ -839,7 +839,7 @@ terminal_preferences_dialog_init (TerminalPreferencesDialog *dialog)
+   gtk_grid_attach (GTK_GRID (grid), label, 2, row, 1, 1);
+   gtk_widget_show (label);
+ 
+-  button = gtk_spin_button_new_with_range (1.0, 2.0, 0.1);
++  button = gtk_spin_button_new_with_range (0.1, 3.0, 0.01);
+   g_object_bind_property (G_OBJECT (dialog->preferences), "cell-height-scale",
+                           G_OBJECT (button), "value",
+                           G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+diff --git a/terminal/terminal-preferences.c b/terminal/terminal-preferences.c
+index 72221333..b4caa4e4 100644
+--- a/terminal/terminal-preferences.c
++++ b/terminal/terminal-preferences.c
+@@ -1234,7 +1234,7 @@ terminal_preferences_class_init (TerminalPreferencesClass *klass)
+       g_param_spec_double ("cell-width-scale",
+                            NULL,
+                            "CellWidthScale",
+-                           1.0, 2.0, 1.0,
++                           0.1, 3.0, 1.0,
+                            G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+ 
+   /**
+@@ -1244,7 +1244,7 @@ terminal_preferences_class_init (TerminalPreferencesClass *klass)
+       g_param_spec_double ("cell-height-scale",
+                            NULL,
+                            "CellHeightScale",
+-                           1.0, 2.0, 1.0,
++                           0.1, 3.0, 1.0,
+                            G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+ 
+   /**
